@@ -13,13 +13,13 @@ port: 8000
   return:
 	{
 		'1': {
-		'_id: UUID,
+		'_id: object_id,
 		'timestamp': str,
 		'tweets_id': [],
 		'burst_words': {word_1: num_n, ..., word_n: num_n},
 		'burst_tweets_count': int,
 		'sum_tweets_count': int,
-		'parent_id': UUID
+		'parent_id': object_id
 		},
 		...
 		'n': {}
@@ -34,13 +34,13 @@ parameter:
   return:
   {
     '1': {
-      '_id: UUID,
+      '_id: object_id,
       'timestamp': str,
       'tweets_id': [],
       'burst_words': {word_1: num_n, ..., word_n: num_n},
       'burst_tweets_count': int,
       'sum_tweets_count': int,
-      'parent_id': UUID
+      'parent_id': object_id
     },
     ...
     'n': {
@@ -51,39 +51,39 @@ parameter:
 ### 3. http://ip:port/get_track_events/parent_id
 ```
   paramter:
-    parent_id: UUID  // 56a1f2b9691bac57fb8c7ccf
+    parent_id: object_id  // 56a1f2b9691bac57fb8c7ccf
   return:
   {
-    '_id': UUID,
+    '_id': object_id,
     'timestamp': str,
-    'burst_events_objectid': [UUID, ..., UUID],
+    'burst_events_objectid': [object_id, ..., object_id],
     'burst_words': {word_1: num_n, ..., word_n: num_n}
   }
 ```
 
-### 4. http://ip:port/get_single_event/_id
+### 4. http://ip:port/get_single_event/object_id
 ```
   parameter: 
-    _id: UUID  // 56a1f2b9691bac57fb8c7cce
+    object_id: object_id  // 56a1f2b9691bac57fb8c7cce
   return:
   {
-      '_id: UUID,
+      '_id: object_id,
       'timestamp': str,
       'tweets_id': [],
       'burst_words': {word_1: num_n, ..., word_n: num_n},
       'burst_tweets_count': int,
       'sum_tweets_count': int,
-      'parent_id': UUID
+      'parent_id': object_id
   }
 ``` 
  
-### 5. http://ip:port/get_single_event_detail/_id
+### 5. http://ip:port/get_single_event_detail/id
 ```
   parameter: 
-    _id: int   // 7899937
+    id: int   // 7899937
   return:
   {
-    'id': _id,
+    'id': id,
     'username': str,
     'timestamp': str,
     'pageurl': str,
@@ -95,8 +95,11 @@ parameter:
 ```
 
 ### 注意
-timestamp为str时形如：2015-06-20 19:20， 
+timestamp为str时形如：2015-06-20 19:20；
+
 timestamp为int时是由上面形式的时间转化成Unix时间所得
+
+object_id 是Mongodb产生的UUID。
 
 
 
