@@ -3,11 +3,13 @@ API written by tornado
 
 ## Four interface
 
+ip: 115.28.202.224
+port: 8000
 
-### 1.http://ip:8000/get_now_events/n_timestamp
+### 1. http://ip:port/get_now_events/n_timestamp
 ```
   parameter:
-    n_timestamp: int
+    n_timestamp: int   // 1434804000
   return:
 	{
 		'1': {
@@ -24,11 +26,11 @@ API written by tornado
 	  }
 ```
   
-### 2.http://ip:8000/get_pre_events/s_timestamp/e_timestamp
+### 2. http://ip:port/get_pre_events/s_timestamp/e_timestamp
 ```
-	parameter:
-    s_timestamp: int,
-    e_timestamp: int
+parameter:
+    s_timestamp: int,  // 1434798000
+    e_timestamp: int  // 1434804600
   return:
   {
     '1': {
@@ -46,10 +48,10 @@ API written by tornado
   }
 ```
 
-### 3.http://ip:8000/get_track_events/parent_id
+### 3. http://ip:port/get_track_events/parent_id
 ```
   paramter:
-    parent_id: UUID
+    parent_id: UUID  // 56a1f2b9691bac57fb8c7ccf
   return:
   {
     '_id': UUID,
@@ -59,10 +61,10 @@ API written by tornado
   }
 ```
 
-### 4.http://ip:8000/get_single_event/_id
+### 4. http://ip:port/get_single_event/_id
 ```
   parameter: 
-    _id: UUID
+    _id: UUID  // 56a1f2b9691bac57fb8c7cce
   return:
   {
       '_id: UUID,
@@ -75,10 +77,10 @@ API written by tornado
   }
 ``` 
  
-### 5.http://ip:8000/get_single_event_detail/_id
+### 5. http://ip:port/get_single_event_detail/_id
 ```
   parameter: 
-    _id: 7971517
+    _id: int   // 7899937
   return:
   {
     'id': _id,
@@ -92,6 +94,9 @@ API written by tornado
   }
 ```
 
+### 注意
+timestamp为str时形如：2015-06-20 19:20， 
+timestamp为int时是由上面形式的时间转化成Unix时间所得
 
 
 
