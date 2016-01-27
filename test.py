@@ -75,10 +75,10 @@ class Interface(object):
     def get_single_event_detail(self, _id):
         event = dict()
         sql = "select id, username, timestamp, pageurl, location, is_v, \
-                score, content from tweets where id=%s and content!=%s"
+                score, content, pos, neu, neg from tweets where id=%s and content!=%s"
         self.cur.execute(sql, (_id, ''))
         try:
-            _id, username, timestamp, pageurl, location, is_v, score, content = self.cur.fetchone()
+            _id, username, timestamp, pageurl, location, is_v, score, content, pos, neu, neg = self.cur.fetchone()
         except:
             return None
         else:
@@ -90,6 +90,9 @@ class Interface(object):
             event['is_v'] = is_v
             event['score'] = score
             event['content'] = content
+            event['pos'] = pos
+            event['neu'] = neu
+            event['neg'] = neg
             return json.dumps(event)
 
 
