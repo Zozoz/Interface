@@ -16,6 +16,7 @@ port: 8000
 		'_id: object_id,
 		'timestamp': str,
 		'tweets_id': [],
+		'sentiment': float,
 		'burst_words': {word_1: num_n, ..., word_n: num_n},
 		'burst_tweets_count': int,
 		'sum_tweets_count': int,
@@ -37,6 +38,7 @@ parameter:
       '_id: object_id,
       'timestamp': str,
       'tweets_id': [],
+      'sentiment': float,
       'burst_words': {word_1: num_n, ..., word_n: num_n},
       'burst_tweets_count': int,
       'sum_tweets_count': int,
@@ -56,6 +58,7 @@ parameter:
   {
     '_id': object_id,
     'timestamp': str,
+    'sentiment': float,
     'burst_events_objectid': [object_id, ..., object_id],
     'burst_words': {word_1: num_n, ..., word_n: num_n}
   }
@@ -70,6 +73,7 @@ parameter:
       '_id: object_id,
       'timestamp': str,
       'tweets_id': [],
+      'sentiment': float,
       'burst_words': {word_1: num_n, ..., word_n: num_n},
       'burst_tweets_count': int,
       'sum_tweets_count': int,
@@ -90,7 +94,10 @@ parameter:
     'location': str,
     'is_v': str,
     'score': float,
-    'content': str
+    'content': str,
+    'pos': float,
+    'neu': float,
+    'neg': float
   }
 ```
 
