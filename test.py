@@ -20,14 +20,12 @@ class Interface(object):
         self.col = db['burst_events']
         self.col_track = db['tracking_events']
 
-
     # generate json
-
     def get_now_events(self, timestamp):
         # burst_events = col.find({'timestamp': {'$lt': '2015-06-20 20:50', '$gt': '2015-06-20 19:00'}})\
         #         .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
         burst_events = self.col.find({'timestamp': {'$gt': timestamp}})\
-                .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
+            .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
         events = dict()
         cnt = 1
         for event in burst_events:
@@ -43,7 +41,7 @@ class Interface(object):
         s_time = '2015-06-20 19:00'
         e_time = '2015-06-20 20:50'
         burst_events = self.col.find({'timestamp': {'$lt': e_time, '$gt': s_time}})\
-                .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
+            .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
         events = dict()
         cnt = 1
         for event in burst_events:
@@ -94,8 +92,6 @@ class Interface(object):
             event['neu'] = neu
             event['neg'] = neg
             return json.dumps(event)
-
-
 
 
 if __name__ == '__main__':
