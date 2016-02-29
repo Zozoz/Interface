@@ -3,8 +3,8 @@ API written by tornado
 
 ## Four interface
 
-ip: 115.28.202.224
-port: 8000
+ip: 202.119.84.47
+port: 8888
 
 ### 1. http://ip:port/get_now_events/n_timestamp
 ```
