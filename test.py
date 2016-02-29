@@ -13,7 +13,7 @@ class Interface(object):
 
     def __init__(self):
 
-        self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='******', db='weibo', port=3306)
+        self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo', port=3306)
         self.cur = self.conn.cursor()
         client = MongoClient('localhost', 27017)
         db = client['weibo']

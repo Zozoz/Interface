@@ -13,7 +13,7 @@ import tornado.web
 from test import Interface
 
 from tornado.options import define, options
-define("port", default=8000, help="run on the give port", type=int)
+define("port", default=8888, help="run on the give port", type=int)
 
 inter = Interface()
 
