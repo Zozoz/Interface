@@ -23,8 +23,9 @@ class IndexHandler(tornado.web.RequestHandler):
 
 class GetNowEventsHandler(tornado.web.RequestHandler):
     def get(self, n_time):
-        n_time = datetime.fromtimestamp(int(n_time)).strftime('%Y-%m-%d %H:%M')
-        events = inter.get_now_events(n_time)
+        nn_time = datetime.fromtimestamp(int(n_time)).strftime('%Y-%m-%d %H:%M')
+        pre_time = datetime.fromtimestamp(int(n_time) - 600).strftime('%Y-%m-%d %H:%M')
+        events = inter.get_now_events(nn_time, pre_time)
         self.write(events)
 
 class GetPreEventsHandler(tornado.web.RequestHandler):

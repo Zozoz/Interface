@@ -21,10 +21,10 @@ class Interface(object):
         self.col_track = db['tracking_events']
 
     # generate json
-    def get_now_events(self, timestamp):
+    def get_now_events(self, n_time, p_time):
         # burst_events = col.find({'timestamp': {'$lt': '2015-06-20 20:50', '$gt': '2015-06-20 19:00'}})\
         #         .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
-        burst_events = self.col.find({'timestamp': {'$gt': timestamp}})\
+        burst_events = self.col.find({'timestamp': {'$gte': p_time, '$lt': n_time}})\
             .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
         events = dict()
         cnt = 1
@@ -38,9 +38,9 @@ class Interface(object):
         return events
 
     def get_pre_events(self, s_time, e_time):
-        s_time = '2015-06-20 19:00'
-        e_time = '2015-06-20 20:50'
-        burst_events = self.col.find({'timestamp': {'$lt': e_time, '$gt': s_time}})\
+        # s_time = '2015-06-20 19:00'
+        # e_time = '2015-06-20 20:50'
+        burst_events = self.col.find({'timestamp': {'$lt': e_time, '$gte': s_time}})\
             .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
         events = dict()
         cnt = 1

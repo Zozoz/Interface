@@ -9,7 +9,7 @@ port: 8888
 ### 1. http://ip:port/get_now_events/n_timestamp
 ```
   parameter:
-    n_timestamp: int   // 1434804000
+    n_timestamp: int   // 1434804600
   return:
 	{
 		'1': {
@@ -30,7 +30,7 @@ port: 8888
 ### 2. http://ip:port/get_pre_events/s_timestamp/e_timestamp
 ```
 parameter:
-    s_timestamp: int,  // 1434798000
+    s_timestamp: int,  // 1434801600
     e_timestamp: int  // 1434804600
   return:
   {
