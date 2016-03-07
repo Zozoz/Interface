@@ -143,7 +143,7 @@ class BurstDetect(object):
         self.records = []
         for row in results:
             content = row[3].split()
-            self.records.append([row[0], row[1], row[2], content])
+            self.records.append([row[0], row[1], row[2], content]) # id, timestamp, pageurl, content
             for item in content:
                 tf[item] = tf[item] + 1 if item in tf else 1
 
@@ -176,7 +176,7 @@ class BurstDetect(object):
         self.word2vec()
         # self.cluster_singlepass(self.vec)
         self.cluster(self.vec)
-        self.get_burst_event(self.clu)
+        self.get_burst_and_tracking_event(self.clu)
 
 
     def word2vec(self):
@@ -285,137 +285,6 @@ class BurstDetect(object):
         print 'the number of doc is ', len(input_vec)
         print 'centroid number is ', len(centroid)
 
-
-    def get_burst_event_1(self, centroid):
-        centroid.sort(key=lambda d: len(d), reverse=True)
-        leng = 5 if len(centroid) > 5 else len(centroid)
-        for i in xrange(leng):
-            if len(centroid[i]) < 10:
-                break
-            print 'the length of centroid %d is %d' % (i, len(centroid[i]))
-            tweets = []
-            words = dict()
-            for item in centroid[i]:
-                print self.records[item][0], ' '.join(self.records[item][3])
-                tweets.append(self.records[item][0])
-                for word in set(self.records[item][3]):
-                    if word in self.burst_word:
-                        if word in words:
-                            words[word] += 1
-                        else:
-                            words[word] = 1
-                        # words.add(word)
-            for word, df in words.items():
-                print word, df, ' | ',
-            print
-
-            l = len(centroid[i]) * 0.5
-            words = {k: v for k, v in words.items() if v >= l}
-
-            burst_event = dict()
-            burst_event['timestamp'] = self.timestamp
-            burst_event['burst_words'] = words
-            burst_event['tweets_id'] = tweets
-            burst_event['burst_tweets_count'] = len(centroid[i])
-            burst_event['sum_tweets_count'] = len(self.vec)
-            # result = self.col.insert_one(burst_event)
-            # _id = result.inserted_id
-
-            flag = True
-            for tid in tweets:
-                a = self.col_t2id.find_one({'name': tid})
-                if a:
-                    parent_id = a['parent_id']
-                    pre_burst_event = self.col.find_one({'_id': parent_id})
-                    burst_words = dict(Counter(words) + Counter(pre_burst_event['burst_words']))
-                    self.col.replace_one({'_id': parent_id}, {
-                        'timestamp': self.timestamp,
-                        'burst_words': dict(sorted(burst_words.items(), key=lambda d: d[1], reverse=True)[:20]),
-                        'tweets_id': list(set(tweets) | set(pre_burst_event['tweets_id'])),
-                        'burst_tweets_count': len(centroid[i]),
-                        'sum_tweets_count': len(self.vec)
-                    })
-                    flag = False
-                    break
-                break
-            if flag:
-                result = self.col.insert_one(burst_event)
-                parent_id = result.inserted_id
-            for tid in tweets:
-                self.col_t2id.insert_one({'name': tid, 'parent_id': parent_id})
-        print
-
-    def get_burst_event_2(self, centroid):
-        centroid.sort(key=lambda d: len(d), reverse=True)
-        leng = 5 if len(centroid) > 5 else len(centroid)
-        for i in xrange(leng):
-            if len(centroid[i]) < 10:
-                break
-            print 'the length of centroid %d is %d' % (i, len(centroid[i]))
-            tweets = []
-            words = dict()
-            for item in centroid[i]:
-                print self.records[item][0], ' '.join(self.records[item][3])
-                tweets.append(self.records[item][0])
-                for word in set(self.records[item][3]):
-                    if word in self.burst_word:
-                        if word in words:
-                            words[word] += 1
-                        else:
-                            words[word] = 1
-
-            l = len(centroid[i]) * 0.5
-            words = {k: v for k, v in words.items() if v >= l}
-
-            for word, df in words.items():
-                print word, df, ' | ',
-            print '\n'
-
-            burst_event = dict()
-            burst_event['timestamp'] = self.timestamp
-            burst_event['burst_words'] = words
-            burst_event['tweets_id'] = tweets
-            burst_event['burst_tweets_count'] = len(centroid[i])
-            burst_event['sum_tweets_count'] = len(self.vec)
-            result = self.col.insert_one(burst_event)
-            # tracking
-            tracking_events = self.col_track.find({'timestamp': {'$gt': '2015-06-19'}})
-            flag = False
-            parent_id = None
-            if tracking_events:
-                for tracking_event in tracking_events:
-                    tracking_words = tracking_event['burst_words']
-                    cnt = 0
-                    for word in tracking_words.keys():
-                        if word.encode('utf-8') in words:
-                            cnt += 1
-                    print '*' * 20
-                    print tracking_words
-                    print words
-                    print '*' * 20
-                    if cnt >= 2:
-                        burst_words = dict(Counter(tracking_words) + Counter(words))
-                        burst_words = dict(sorted(burst_words.items(), key=lambda d: d[1], reverse=True)[:20])
-                        self.col_track.replace_one({'_id': tracking_event['_id']}, {
-                            'timestamp': self.timestamp,
-                            'burst_words': burst_words,
-                            'burst_events_objectid': tracking_event['burst_events_objectid'] + [result.inserted_id]
-                        })
-                        parent_id = tracking_event['_id']
-                        flag = True
-                        break
-            if not flag:
-                parent = self.col_track.insert_one({
-                    'timestamp': self.timestamp,
-                    'burst_words': words,
-                    'burst_events_objectid': [result.inserted_id]
-                })
-                parent_id = parent.inserted_id
-            print 'parent_id', parent_id
-            self.col.update_one({'_id': result.inserted_id}, {
-                '$set': {'parent_id': parent_id}
-            })
-
     def get_burst_event_3(self, centroid):
         centroid.sort(key=lambda d: len(d), reverse=True)
         leng = 5 if len(centroid) > 5 else len(centroid)
@@ -509,6 +378,103 @@ class BurstDetect(object):
             })
 
     def get_burst_event(self, centroid):
+        centroid.sort(key=lambda d: len(d), reverse=True)
+        for i in xrange(len(centroid)):
+            leng = len(centroid[i])
+            if leng < 10:
+                break
+            print 'the length of centroid %d is %d' % (i, len(centroid[i]))
+
+            # find keywords whose frequency is more than leng*0.3
+            tweets = []
+            words = dict()
+            for item in centroid[i]:
+                print self.records[item][0], ' '.join(self.records[item][3])
+                tweets.append(self.records[item][0])
+                for word in set(self.records[item][3]):
+                    words[word] = words[word] + 1 if word in words else 1
+            words = {k: v for k, v in words.items() if v > leng * 0.3}
+            for k, v in words.items():
+                print k, ': ', v,
+            print
+
+            # write burst events to mongodb
+            burst_event = dict()
+            burst_event['timestamp'] = self.timestamp
+            burst_event['burst_words'] = words
+            burst_event['tweets_id'] = tweets
+            burst_event['burst_tweets_count'] = len(centroid[i])
+            burst_event['sum_tweets_count'] = len(self.vec)
+            # calculate sentiment
+            sql = 'select sum(pos), sum(neu), sum(neg) from tweets where id in %s'
+            self.cur.execute(sql, (tweets, ))
+            ans = self.cur.fetchone()
+            sentiment = ans[0] if ans[0] > ans[2] else -ans[2]
+            burst_event['sentiment'] = sentiment
+            result = self.col.insert_one(burst_event)
+
+            # burst event tracking
+            self.get_tracking_event(self, result.inserted_id)
+
+    def get_tracking_event(self, burst_id):
+        cur_event = self.col.find_one({'_id': burst_id})
+        cur_words = cur_event['burst_words']
+        results = self.col.find({'timestamp': {'$gt': '2015-06-19'}})
+        pre_events = []
+        for res in results:
+            if res['_id'] != burst_id:
+                pre_events.append(res)
+        flag = False
+        if pre_events:
+            # calculate cos distance between current-event and previous-events
+            cos_values = []
+            cur_sum = math.sqrt(sum([v**2 for v in cur_words.values]))
+            for i in xrange(len(pre_events)):
+                pre_words = {k.encode('utf-8'): v for k, v in pre_events[i]['burst_words'].items()}
+                pre_sum = math.sqrt(sum([v**2 for v in pre_words.values()]))
+                com_words = set(pre_words.keys()) & set(cur_words.keys())
+                com_sum = sum([pre_words[word] * cur_words[word] for word in com_words])
+                cos_values.append((com_sum / (cur_sum * pre_sum), i))
+            cos_values.sort(key=lambda d: d[0], reverse=True)
+
+            if cos_values[0][0] > 0.3:
+                vote = dict()
+                for event in cos_values:
+                    if event[0] <= 0.3:
+                        break
+                    k = pre_events[event[1]]['parent_id']
+                    vote[k] = vote[k] + 1 if k in vote else 1
+                vote = sorted(vote.items(), key=lambda d: d[1], reverse=True)
+                # if all vote of parent_id is 1, use the one whose cos_value is biggest
+                # else use the one whose vote is most.
+                if vote[0][1] == 1:
+                    parent_id = pre_events[cos_values[0][1]]['parent_id']
+                else:
+                    parent_id = vote[0][0]
+                parent = self.col_track.find_one({'_id': parent_id})
+                pre_words = parent['burst_words']
+                burst_words = dict(Counter(pre_words) + Counter(cur_words))
+                self.col_track.replace_one({'_id': parent['_id']}, {
+                    'timestamp': self.timestamp,
+                    'burst_words': burst_words,
+                    'sentiment': parent['sentiment'] + cur_event['sentiment'],
+                    'burst_events_objectid': parent['burst_event_objectid'] + [burst_id]
+                })
+                flag = True
+        if not flag:
+            parent = self.col_track.insert_one({
+                'timestamp': self.timestamp,
+                'burst_words': cur_words,
+                'sentiment': cur_event['sentiment'],
+                'burst_events_objectid': [burst_id]
+            })
+            parent_id = parent.inserted_id
+        print 'parent_id: ', parent_id
+        self.col.update_one({'_id': burst_id}, {
+            '$set': {'parent_id': parent_id}
+        })
+
+    def get_burst_and_tracking_event(self, centroid):
         centroid.sort(key=lambda d: len(d), reverse=True)
         leng = 5 if len(centroid) > 5 else len(centroid)
         for i in xrange(leng):
