@@ -138,7 +138,7 @@ class BurstDetect(object):
         self.records = []
         for row in results:
             content = row[3].split()
-            self.records.append([row[0], row[1], row[2], content]) # id, timestamp, pageurl, content
+            self.records.append([row[0], row[1], row[2], content])  # id, timestamp, pageurl, content
             for item in content:
                 tf[item] = tf[item] + 1 if item in tf else 1
 
@@ -171,7 +171,8 @@ class BurstDetect(object):
         self.word2vec()
         # self.cluster_singlepass(self.vec)
         self.cluster(self.vec)
-        self.get_burst_and_tracking_event(self.clu)
+        # self.get_burst_and_tracking_event(self.clu)
+        self.get_burst_event(self.clu)
 
     def word2vec(self):
         length = len(self.burst_word)
@@ -369,8 +370,8 @@ class BurstDetect(object):
     def get_burst_event(self, centroid):
         centroid.sort(key=lambda d: len(d), reverse=True)
         for i in xrange(len(centroid)):
-            leng = 5 if len(centroid) > 5 else len(centroid[i])
-            if len(centroid) < 10:
+            leng = len(centroid[i])
+            if leng < 10:
                 break
             print 'the length of centroid %d is %d' % (i, len(centroid[i]))
 
@@ -403,7 +404,7 @@ class BurstDetect(object):
             result = self.col.insert_one(burst_event)
 
             # burst event tracking
-            self.get_tracking_event(self, result.inserted_id)
+            self.get_tracking_event(result.inserted_id)
 
     def get_tracking_event(self, burst_id):
         cur_event = self.col.find_one({'_id': burst_id})
@@ -579,7 +580,6 @@ class BurstDetect(object):
                     times = datetime.datetime(2015, 6, d, h, m)
                     self.process(times)
 
-
     def get_burst_events_from_mongodb(self, start_time, end_time):
         burst_events = self.col.find({'timestamp': {'$gt': start_time, '$lt': end_time}})
         return burst_events
@@ -603,5 +603,3 @@ if __name__ == '__main__':
 
     burst = BurstDetect()
     burst.test()
-
-
