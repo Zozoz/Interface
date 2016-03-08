@@ -37,7 +37,6 @@ class BurstDetect(object):
         self.clu = None
         self.timestamp = None
 
-
     def create_table(self):
         sql = """
             create table if not exists tweets(
@@ -66,12 +65,10 @@ class BurstDetect(object):
         self.cur.execute(sql)
         self.conn.commit()
 
-
     def format_time(self, atime):
         atime = atime.strip('\r\n').strip('\n').split()
         atime = atime[0].split('-') + atime[1].split(':')
         return [int(tt) for tt in atime]
-
 
     def split_content(self, quzao_file, fenci_file):
         """
@@ -117,14 +114,12 @@ class BurstDetect(object):
 
             self.conn.commit()
 
-
     def get_slice_content_from_mysql(self, s_time, e_time):
 
         sql = "select id, timestamp, pageurl, content from tweets where timestamp>=%s and timestamp<%s"
         self.cur.execute(sql, (s_time, e_time))
         results = self.cur.fetchall()
         return results
-
 
     def process(self, nowdatetime):
 
@@ -178,7 +173,6 @@ class BurstDetect(object):
         self.cluster(self.vec)
         self.get_burst_and_tracking_event(self.clu)
 
-
     def word2vec(self):
         length = len(self.burst_word)
         self.vec = []
@@ -190,13 +184,11 @@ class BurstDetect(object):
                     cont_vec[self.word2id[item]] = 1
             self.vec.append(cont_vec)
 
-
     def get_multify(self, vec1, vec2):
         sum = 0
         for i in xrange(len(vec1)):
             sum += vec1[i] * vec2[i]
         return sum
-
 
     def cluster_singlepass(self, input_vec):
         centroid = []
@@ -235,7 +227,6 @@ class BurstDetect(object):
         print 'the number of doc is ', len(input_vec)
         print 'centroid number is ', len(centroid)
 
-
     def is_similar(self, vec1, vec2):
         len1 = sum(vec1)
         len2 = sum(vec2)
@@ -250,7 +241,6 @@ class BurstDetect(object):
                 return True
             else:
                 return False
-
 
     def cluster(self, input_vec):
         centroid = []
@@ -349,7 +339,6 @@ class BurstDetect(object):
                         tmp = tracking_event
                     cnt += 1
 
-
                 if max_cos > 0.2:
                     tracking_words = tmp['burst_words']
                     print '*' * 20
@@ -380,8 +369,8 @@ class BurstDetect(object):
     def get_burst_event(self, centroid):
         centroid.sort(key=lambda d: len(d), reverse=True)
         for i in xrange(len(centroid)):
-            leng = len(centroid[i])
-            if leng < 10:
+            leng = 5 if len(centroid) > 5 else len(centroid[i])
+            if len(centroid) < 10:
                 break
             print 'the length of centroid %d is %d' % (i, len(centroid[i]))
 
@@ -419,6 +408,7 @@ class BurstDetect(object):
     def get_tracking_event(self, burst_id):
         cur_event = self.col.find_one({'_id': burst_id})
         cur_words = cur_event['burst_words']
+        cur_words = {k.encode('utf-8'): v for k, v in cur_words.items()}
         results = self.col.find({'timestamp': {'$gt': '2015-06-19'}})
         pre_events = []
         for res in results:
@@ -428,7 +418,7 @@ class BurstDetect(object):
         if pre_events:
             # calculate cos distance between current-event and previous-events
             cos_values = []
-            cur_sum = math.sqrt(sum([v**2 for v in cur_words.values]))
+            cur_sum = math.sqrt(sum([v**2 for v in cur_words.values()]))
             for i in xrange(len(pre_events)):
                 pre_words = {k.encode('utf-8'): v for k, v in pre_events[i]['burst_words'].items()}
                 pre_sum = math.sqrt(sum([v**2 for v in pre_words.values()]))
@@ -604,10 +594,10 @@ class BurstDetect(object):
 
 if __name__ == '__main__':
     # split_content('/home/poa/data/yingji/quzao/', '/home/poa/data/yingji/fenci/')
-    #conn, cur = connect2mysql()
-    #cur.execute('select username from tweets where timestamp < %s', ('2015-05-01 00:00:07', ))
-    #import chardet
-    #for item in cur.fetchall():
+    # conn, cur = connect2mysql()
+    # cur.execute('select username from tweets where timestamp < %s', ('2015-05-01 00:00:07', ))
+    # import chardet
+    # for item in cur.fetchall():
     #    print item[0]
     #    print chardet.detect(item[0])
 
