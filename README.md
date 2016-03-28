@@ -101,6 +101,31 @@ parameter:
   }
 ```
 
+### 6. http://ip:port/get_tweets_by_eventid/id
+```
+  parameter:
+    id: object_id   // 56e805131ed818082e3416b6
+  return:
+  {
+    '1': {
+        'id': id,
+        'username': str,
+        'timestamp': str,
+        'pageurl': str,
+        'location': str,
+        'is_v': str,
+        'score': float,
+        'content': str,
+        'pos': float,
+        'neu': float,
+        'neg': float
+    },
+    ...,
+    'n': {
+    }
+  }
+```
+
 ### 注意
 timestamp为str时形如：2015-06-20 19:20，分钟数必须能被10整除，目前有效值为2015-06-20 19:00~2015-06-20 20:50；
 

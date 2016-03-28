@@ -53,6 +53,7 @@ coverage.xml
 *.log
 log.txt
 tmp.txt
+tmp1.txt
 
 # Sphinx documentation
 docs/_build/

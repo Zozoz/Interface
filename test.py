@@ -13,7 +13,7 @@ class Interface(object):
 
     def __init__(self):
 
-        self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo', port=3306)
+        self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo_test', port=3306)
         self.cur = self.conn.cursor()
         client = MongoClient('localhost', 27017)
         db = client['weibo']
@@ -70,14 +70,23 @@ class Interface(object):
         event = json.dumps(event)
         return event
 
+    def get_tweets_by_eventid(self, _id):
+        event = self.col.find_one({'_id': bson.objectid.ObjectId(_id)})
+        tweets_id = event['tweets_id']
+        events = dict()
+        for i in xrange(len(tweets_id)):
+            events[i+1] = self.get_single_event_detail(tweets_id[i])
+        return json.dumps(events)
+
     def get_single_event_detail(self, _id):
         event = dict()
         sql = "select id, username, timestamp, pageurl, location, is_v, \
-                score, content, pos, neu, neg from tweets where id=%s and content!=%s"
-        self.cur.execute(sql, (_id, ''))
+                score, raw_content, pos, neu, neg from tweets where id=%s"
+        self.cur.execute(sql, (_id, ))
         try:
             _id, username, timestamp, pageurl, location, is_v, score, content, pos, neu, neg = self.cur.fetchone()
         except:
+            print 'error'
             return None
         else:
             event['id'] = _id

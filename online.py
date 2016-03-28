@@ -171,8 +171,8 @@ class BurstDetect(object):
         self.word2vec()
         # self.cluster_singlepass(self.vec)
         self.cluster(self.vec)
-        # self.get_burst_and_tracking_event(self.clu)
-        self.get_burst_event(self.clu)
+        self.get_burst_and_tracking_event(self.clu)
+        # self.get_burst_event(self.clu)
 
     def word2vec(self):
         length = len(self.burst_word)
@@ -425,14 +425,14 @@ class BurstDetect(object):
                 pre_sum = math.sqrt(sum([v**2 for v in pre_words.values()]))
                 com_words = set(pre_words.keys()) & set(cur_words.keys())
                 com_sum = sum([pre_words[word] * cur_words[word] for word in com_words])
-                cos_values.append((com_sum / (cur_sum * pre_sum), i))
-            cos_values.sort(key=lambda d: d[0], reverse=True)
+                cos_value = com_sum / (cur_sum * pre_sum)
+                if cos_value > 0.5:
+                    cos_values.append((com_sum / (cur_sum * pre_sum), i))
+            if cos_values:
+                cos_values.sort(key=lambda d: d[0], reverse=True)
 
-            if cos_values[0][0] > 0.3:
                 vote = dict()
                 for event in cos_values:
-                    if event[0] <= 0.3:
-                        break
                     k = pre_events[event[1]]['parent_id']
                     vote[k] = vote[k] + 1 if k in vote else 1
                 vote = sorted(vote.items(), key=lambda d: d[1], reverse=True)
@@ -442,6 +442,7 @@ class BurstDetect(object):
                     parent_id = pre_events[cos_values[0][1]]['parent_id']
                 else:
                     parent_id = vote[0][0]
+                parent_id = pre_events[cos_values[0][1]]['parent_id']
                 parent = self.col_track.find_one({'_id': parent_id})
                 pre_words = parent['burst_words']
                 burst_words = dict(Counter(pre_words) + Counter(cur_words))
@@ -449,7 +450,7 @@ class BurstDetect(object):
                     'timestamp': self.timestamp,
                     'burst_words': burst_words,
                     'sentiment': parent['sentiment'] + cur_event['sentiment'],
-                    'burst_events_objectid': parent['burst_event_objectid'] + [burst_id]
+                    'burst_events_objectid': parent['burst_events_objectid'] + [burst_id]
                 })
                 flag = True
         if not flag:
@@ -572,7 +573,7 @@ class BurstDetect(object):
 
     def test(self):
         day = range(20, 22)
-        hour = range(0, 21)
+        hour = range(0, 24)
         minute = range(0, 60, 10)
         for d in day:
             for h in hour:
