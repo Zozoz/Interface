@@ -500,11 +500,23 @@ class BurstDetect(object):
             burst_event['sum_tweets_count'] = len(self.vec)
 
             # calculate sentiment
-            sql = 'select sum(pos), sum(neu), sum(neg) from tweets where id in %s'
+            sql = 'select sum(pos) from tweets where id in %s and pos > neu and pos > neg'
             self.cur.execute(sql, (tweets, ))
             ans = self.cur.fetchone()
-            sentiment = ans[0] if ans[0] > ans[2] else -ans[2]
-            burst_event['sentiment'] = sentiment
+            sentiment = ans[0]
+            burst_event['sentiment_pos'] = sentiment
+
+            sql = 'select sum(neu) from tweets where id in %s and neu > pos and neu > neg'
+            self.cur.execute(sql, (tweets, ))
+            ans = self.cur.fetchone()
+            sentiment = ans[0]
+            burst_event['sentiment_neu'] = sentiment
+
+            sql = 'select sum(neg) from tweets where id in %s and neg > neu and neg > pos'
+            self.cur.execute(sql, (tweets, ))
+            ans = self.cur.fetchone()
+            sentiment = ans[0]
+            burst_event['sentiment_neg'] = sentiment
 
             results = self.col.find({'timestamp': {'$gt': '2015-06-19'}})
             pre_events = []
