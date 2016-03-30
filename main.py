@@ -55,6 +55,11 @@ class GetTweetsByEventidHandler(tornado.web.RequestHandler):
         event = inter.get_tweets_by_eventid(_id)
         self.write(event)
 
+class GetEventsByParentidHandler(tornado.web.RequestHandler):
+    def get(self, _id):
+        events = inter.get_events_by_parentid(_id)
+        self.write(events)
+
 if __name__ == '__main__':
     tornado.options.parse_command_line()
     app = tornado.web.Application(
@@ -64,7 +69,8 @@ if __name__ == '__main__':
             (r'/get_track_events/(\w+)', GetTrackEventsHandler),
             (r'/get_single_event/(\w+)', GetSingleEventHandler),
             (r'/get_single_event_detail/(\w+)', GetSingleEventDetailHandler),
-            (r'/get_tweets_by_eventid/(\w+)', GetTweetsByEventidHandler)
+            (r'/get_tweets_by_eventid/(\w+)', GetTweetsByEventidHandler),
+            (r'/get_events_by_parentid/(\w+)', GetEventsByParentidHandler)
             ],
         debug=True
     )

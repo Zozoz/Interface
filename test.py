@@ -12,7 +12,6 @@ from pymongo import MongoClient
 class Interface(object):
 
     def __init__(self):
-
         self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo_test', port=3306)
         self.cur = self.conn.cursor()
         client = MongoClient('localhost', 27017)
@@ -63,6 +62,17 @@ class Interface(object):
         event = json.dumps(event)
         return event
 
+    def get_events_by_parentid(self, _id):
+        event = self.col_track.find_one({'_id': bson.objectid.ObjectId(_id)})
+        object_ids = event['burst_events_objectid']
+        events = dict()
+        for i in xrange(len(object_ids)):
+            event = self.col.find_one({'_id': object_ids[i]})
+            event['_id'] = str(event['_id'])
+            event['parent_id'] = str(event['parent_id'])
+            events[i + 1] = event
+        return json.dumps(events)
+
     def get_single_event(self, _id):
         event = self.col.find_one({'_id': bson.objectid.ObjectId(_id)})
         event['_id'] = str(event['_id'])
@@ -70,15 +80,25 @@ class Interface(object):
         event = json.dumps(event)
         return event
 
+    def keep_mysql_alive(self):
+        try:
+            self.cur.execute('select id from tweers limit 1')
+        except:
+            print 'lost server...,reconnect...'
+            self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo_test', port=3306)
+            self.cur = self.conn.cursor()
+
     def get_tweets_by_eventid(self, _id):
+        self.keep_mysql_alive()
         event = self.col.find_one({'_id': bson.objectid.ObjectId(_id)})
         tweets_id = event['tweets_id']
         events = dict()
         for i in xrange(len(tweets_id)):
-            events[i+1] = self.get_single_event_detail(tweets_id[i])
+            events[i + 1] = self.get_single_tweet(tweets_id[i])
+
         return json.dumps(events)
 
-    def get_single_event_detail(self, _id):
+    def get_single_tweet(self, _id):
         event = dict()
         sql = "select id, username, timestamp, pageurl, location, is_v, \
                 score, raw_content, pos, neu, neg from tweets where id=%s"
@@ -100,7 +120,11 @@ class Interface(object):
             event['pos'] = pos
             event['neu'] = neu
             event['neg'] = neg
-            return json.dumps(event)
+            return event
+
+    def get_single_event_detail(self, _id):
+        self.keep_mysql_alive()
+        return json.dumps(self.get_single_tweet(_id))
 
 
 if __name__ == '__main__':

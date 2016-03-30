@@ -101,7 +101,7 @@ parameter:
   }
 ```
 
-### 6. http://ip:port/get_tweets_by_eventid/id
+### 6. http://ip:port/get_tweets_by_eventid/event_id
 ```
   parameter:
     id: object_id   // 56e805131ed818082e3416b6
@@ -119,6 +119,28 @@ parameter:
         'pos': float,
         'neu': float,
         'neg': float
+    },
+    ...,
+    'n': {
+    }
+  }
+```
+
+### 7. http://ip:port/get_events_by_parentid/parent_id
+```
+  parameter:
+    id: object_id //
+  return:
+  {
+    '1': {
+      '_id: object_id,
+      'timestamp': str,
+      'tweets_id': [],
+      'sentiment': float,
+      'burst_words': {word_1: num_n, ..., word_n: num_n},
+      'burst_tweets_count': int,
+      'sum_tweets_count': int,
+      'parent_id': object_id
     },
     ...,
     'n': {
