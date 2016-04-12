@@ -54,6 +54,7 @@ coverage.xml
 log.txt
 tmp.txt
 tmp1.txt
+backup*
 
 # Sphinx documentation
 docs/_build/

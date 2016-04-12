@@ -10,7 +10,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 
-from test import Interface
+from utils import Interface
 
 from tornado.options import define, options
 define("port", default=8888, help="run on the give port", type=int)
@@ -21,41 +21,41 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("Hello world!")
 
-class GetNowEventsHandler(tornado.web.RequestHandler):
+class GetDetectionEventByIDHandler(tornado.web.RequestHandler):
+    def get(self, _id):
+        event = inter.get_detection_event_by_id(_id)
+        self.write(event)
+
+class GetDetectionEventsByTimeHandler(tornado.web.RequestHandler):
     def get(self, n_time):
         nn_time = datetime.fromtimestamp(int(n_time)).strftime('%Y-%m-%d %H:%M')
         pre_time = datetime.fromtimestamp(int(n_time) - 600).strftime('%Y-%m-%d %H:%M')
-        events = inter.get_now_events(nn_time, pre_time)
+        events = inter.get_detection_events_by_time(pre_time, nn_time)
         self.write(events)
 
-class GetPreEventsHandler(tornado.web.RequestHandler):
+class GetTrackingEventByIDHandler(tornado.web.RequestHandler):
+    def get(self, _id):
+        event = inter.get_tracking_event_by_id(_id)
+        self.write(event)
+
+class GetTrackingEventsByTimeHandler(tornado.web.RequestHandler):
     def get(self, s_time, e_time):
         s_time = datetime.fromtimestamp(int(s_time)).strftime('%Y-%m-%d %H:%M')
         e_time = datetime.fromtimestamp(int(e_time)).strftime('%Y-%m-%d %H:%M')
-        events = inter.get_pre_events(s_time, e_time)
+        events = inter.get_tracking_events_by_time(s_time, e_time)
         self.write(events)
 
-class GetTrackEventsHandler(tornado.web.RequestHandler):
+class GetSingleTweetByIDHandler(tornado.web.RequestHandler):
     def get(self, _id):
-        events = inter.get_tracking_events(_id)
-        self.write(events)
+        tweet = inter.get_single_tweet_by_id(_id)
+        self.write(tweet)
 
-class GetSingleEventHandler(tornado.web.RequestHandler):
+class GetTweetsByEventIDHandler(tornado.web.RequestHandler):
     def get(self, _id):
-        event = inter.get_single_event(_id)
-        self.write(event)
+        tweets = inter.get_tweets_by_eventid(_id)
+        self.write(tweets)
 
-class GetSingleEventDetailHandler(tornado.web.RequestHandler):
-    def get(self, _id):
-        event = inter.get_single_event_detail(_id)
-        self.write(event)
-
-class GetTweetsByEventidHandler(tornado.web.RequestHandler):
-    def get(self, _id):
-        event = inter.get_tweets_by_eventid(_id)
-        self.write(event)
-
-class GetEventsByParentidHandler(tornado.web.RequestHandler):
+class GetEventsByParentIDHandler(tornado.web.RequestHandler):
     def get(self, _id):
         events = inter.get_events_by_parentid(_id)
         self.write(events)
@@ -64,13 +64,13 @@ if __name__ == '__main__':
     tornado.options.parse_command_line()
     app = tornado.web.Application(
         handlers=[(r'/', IndexHandler),
-            (r'/get_now_events/(\w+)', GetNowEventsHandler),
-            (r'/get_pre_events/(\w+)/(\w+)', GetPreEventsHandler),
-            (r'/get_track_events/(\w+)', GetTrackEventsHandler),
-            (r'/get_single_event/(\w+)', GetSingleEventHandler),
-            (r'/get_single_event_detail/(\w+)', GetSingleEventDetailHandler),
-            (r'/get_tweets_by_eventid/(\w+)', GetTweetsByEventidHandler),
-            (r'/get_events_by_parentid/(\w+)', GetEventsByParentidHandler)
+            (r'/get_detection_event_by_id/(\w+)', GetDetectionEventByIDHandler),
+            (r'/get_detection_events_by_time/(\w+)', GetDetectionEventsByTimeHandler),
+            (r'/get_tracking_event_by_id/(\w+)', GetTrackingEventByIDHandler),
+            (r'/get_tracking_events_by_time/(\w+)/(\w+)', GetTrackingEventsByTimeHandler),
+            (r'/get_single_tweet_by_id/(\w+)', GetSingleTweetByIDHandler),
+            (r'/get_tweets_by_eventid/(\w+)', GetTweetsByEventIDHandler),
+            (r'/get_events_by_parentid/(\w+)', GetEventsByParentIDHandler)
             ],
         debug=True
     )

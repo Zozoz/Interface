@@ -16,7 +16,7 @@ class BurstDetect(object):
 
     def __init__(self):
         self.threshold = 3
-        self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo', port=3306)
+        self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo_test', port=3306)
         self.cur = self.conn.cursor()
         self.R = redis.Redis(host='localhost', port=6379, db=1)
         mongodb = MongoClient('localhost', 27017)
