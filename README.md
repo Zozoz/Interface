@@ -25,10 +25,9 @@ port: 8888
     }
 ```
 
-### 2. http://ip:port/get_detection_events_by_time/s_timestamp/e_timestamp
+### 2. http://ip:port/get_detection_events_by_time/e_timestamp
 ```
     parameter:
-        s_timestamp: int, // 1434801600
         e_timestamp: int // 1434804600
     return:
     {
