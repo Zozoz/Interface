@@ -93,7 +93,7 @@ class Interface(object):
             event['_id'] = str(event['_id'])
             event['parent_id'] = str(event['parent_id'])
             events[i + 1] = event
-            return json.dumps(events)
+        return json.dumps(events)
 
     def _keep_mysql_alive(self):
         try:
@@ -128,8 +128,48 @@ class Interface(object):
             event['neg'] = neg
             return event
 
+    def _get_tweets_by_eventid(self, _id):
+        event = self.col.find_one({'_id': bson.objectid.ObjectId(_id)})
+        tweets_id = event['tweets_id']
+        events = dict()
+        # for i in xrange(len(tweets_id)):
+        #     events[i + 1] = self.get_single_tweet(tweets_id[i])
+        sql = "select id, username, timestamp, pageurl, location, is_v, \
+                score, raw_content, pos, neu, neg from tweets where id in %s"
+        self.cur.execute(sql, (tweets_id, ))
+        try:
+            results = self.cur.fetchall()
+            for i in xrange(len(results)):
+                _id, username, timestamp, pageurl, location, is_v, score, content, pos, neu, neg = results[i]
+                event = dict()
+                event['id'] = _id
+                event['username'] = username
+                event['timestamp'] = str(timestamp)
+                event['pageurl'] = pageurl
+                event['location'] = location
+                event['is_v'] = is_v
+                event['score'] = score
+                event['content'] = content
+                event['pos'] = pos
+                event['neu'] = neu
+                event['neg'] = neg
+                events[i + 1] = event
+        except:
+            print 'Error'
+        return events
+
+    def get_tweets_by_trackid(self, _id):
+        self._keep_mysql_alive()
+        eventids = self.col_track.find_one({'_id': bson.objectid.ObjectId(_id)})['burst_events_objectid']
+        events = dict()
+        for eventid in eventids:
+            events[str(eventid)] = self._get_tweets_by_eventid(str(eventid))
+        return json.dumps(events)
+
     def get_tweets_by_eventid(self, _id):
         self._keep_mysql_alive()
+        return json.dumps(self._get_tweets_by_eventid(_id))
+        '''
         event = self.col.find_one({'_id': bson.objectid.ObjectId(_id)})
         tweets_id = event['tweets_id']
         events = dict()
@@ -159,7 +199,7 @@ class Interface(object):
             print 'Error'
 
         return json.dumps(events)
-
+        '''
 
 if __name__ == '__main__':
     test = Interface()

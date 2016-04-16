@@ -25,10 +25,9 @@ port: 8888
     }
 ```
 
-### 2. http://ip:port/get_detection_events_by_time/s_timestamp/e_timestamp
+### 2. http://ip:port/get_detection_events_by_time/e_timestamp
 ```
     parameter:
-        s_timestamp: int, // 1434801600
         e_timestamp: int // 1434804600
     return:
     {
@@ -145,6 +144,31 @@ port: 8888
         },
         ...,
         'n': {
+        }
+    }
+```
+
+### 7. http://ip:port/get_twwets_by_trackid/id
+```
+    parameter:
+        id: object_id //
+    return:
+    {
+        'event1_object_id': {
+            'id': id,
+            'username': str,
+            'timestamp': str,
+            'pageurl': str,
+            'location': str,
+            'is_v': str,
+            'score': float,
+            'content': str,
+            'pos': float,
+            'neu': float,
+            'neg': float
+        },
+        ...,
+        'eventn_object_id': {
         }
     }
 ```

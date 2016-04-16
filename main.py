@@ -55,6 +55,11 @@ class GetTweetsByEventIDHandler(tornado.web.RequestHandler):
         tweets = inter.get_tweets_by_eventid(_id)
         self.write(tweets)
 
+class GetTweetsByTrackIDHandler(tornado.web.RequestHandler):
+    def get(self, _id):
+        tweets = inter.get_tweets_by_trackid(_id)
+        self.write(tweets)
+
 class GetEventsByParentIDHandler(tornado.web.RequestHandler):
     def get(self, _id):
         events = inter.get_events_by_parentid(_id)
@@ -70,6 +75,7 @@ if __name__ == '__main__':
             (r'/get_tracking_events_by_time/(\w+)/(\w+)', GetTrackingEventsByTimeHandler),
             (r'/get_single_tweet_by_id/(\w+)', GetSingleTweetByIDHandler),
             (r'/get_tweets_by_eventid/(\w+)', GetTweetsByEventIDHandler),
+            (r'/get_tweets_by_trackid/(\w+)', GetTweetsByTrackIDHandler),
             (r'/get_events_by_parentid/(\w+)', GetEventsByParentIDHandler)
             ],
         debug=True
