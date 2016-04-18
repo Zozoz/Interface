@@ -33,7 +33,7 @@ class Interface(object):
         """
         获取时间间隔内的检测事件
         """
-        burst_events = self.col.find({'timestamp': {'$gte': s_time, '$lt': e_time}})\
+        burst_events = self.col.find({'timestamp': {'$gt': s_time, '$lte': e_time}})\
             .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
         events = dict()
         cnt = 1
@@ -65,7 +65,7 @@ class Interface(object):
         '''
         # s_time = '2015-06-20 19:00'
         # e_time = '2015-06-20 20:50'
-        burst_events = self.col_track.find({'timestamp': {'$lt': e_time, '$gte': s_time}})\
+        burst_events = self.col_track.find({'timestamp': {'$lte': e_time, '$gt': s_time}})\
             .sort([('timestamp', pymongo.ASCENDING), ('burst_tweets_count', pymongo.DESCENDING)])
         events = dict()
         cnt = 1

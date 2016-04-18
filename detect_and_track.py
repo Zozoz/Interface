@@ -293,7 +293,7 @@ class BurstDetect(object):
         cur_event = self.col.find_one({'_id': burst_id})
         cur_words = cur_event['burst_words']
         cur_words = {k.encode('utf-8'): v for k, v in cur_words.items()}
-        results = self.col.find({'timestamp': {'$gt': '2015-06-19'}})
+        results = self.col.find({'timestamp': {'$gt': '2015-06-17'}})
         pre_events = []
         for res in results:
             if res['_id'] != burst_id:
@@ -333,6 +333,8 @@ class BurstDetect(object):
                     'timestamp': self.timestamp,
                     'burst_words': burst_words,
                     # 'sentiment': parent['sentiment'] + cur_event['sentiment'],
+                    'burst_tweets_count': parent['burst_tweets_count'] + cur_event['burst_tweets_count'],
+                    'sum_tweets_count': parent['sum_tweets_count'] + cur_event['sum_tweets_count'],
                     'burst_events_objectid': parent['burst_events_objectid'] + [burst_id]
                 })
                 flag = True
@@ -341,6 +343,8 @@ class BurstDetect(object):
                 'timestamp': self.timestamp,
                 'burst_words': cur_words,
                 # 'sentiment': cur_event['sentiment'],
+                'burst_tweets_count': cur_event['burst_tweets_count'],
+                'sum_tweets_count': cur_event['sum_tweets_count'],
                 'burst_events_objectid': [burst_id]
             })
             parent_id = parent.inserted_id
@@ -350,7 +354,7 @@ class BurstDetect(object):
         })
 
     def test(self):
-        day = range(20, 22)
+        day = range(17, 22)
         hour = range(0, 24)
         minute = range(0, 60, 10)
         for d in day:

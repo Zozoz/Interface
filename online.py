@@ -584,7 +584,7 @@ class BurstDetect(object):
             })
 
     def test(self):
-        day = range(20, 22)
+        day = range(17, 22)
         hour = range(0, 24)
         minute = range(0, 60, 10)
         for d in day:

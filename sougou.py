@@ -297,7 +297,7 @@ class BurstDetect(object):
             tweets = []
             words = dict()
             for item in centroid[i]:
-                # print self.records[item][0], ' '.join(self.records[item][3])
+                print self.records[item][0], ' '.join(self.records[item][3])
                 tweets.append(self.records[item][0])
                 for word in set(self.records[item][3]):
                     if word in self.burst_word:
@@ -343,7 +343,7 @@ class BurstDetect(object):
         cur_event = self.col.find_one({'_id': burst_id})
         cur_words = cur_event['burst_words']
         cur_words = {k.encode('utf-8'): v for k, v in cur_words.items()}
-        results = self.col.find({'timestamp': {'$gt': '2015-06-19'}})
+        results = self.col.find({'timestamp': {'$gt': '2015-06-17'}})
         pre_events = []
         for res in results:
             if res['_id'] != burst_id:
@@ -359,7 +359,6 @@ class BurstDetect(object):
                 com_words = set(pre_words.keys()) & set(cur_words.keys())
                 com_sum = sum([pre_words[word] * cur_words[word] for word in com_words])
                 cos_value = com_sum / (cur_sum * pre_sum) if cur_sum != 0 and pre_sum != 0 else 0
-                print cos_value
                 if cos_value > 0.3:
                     cos_values.append((cos_value, i))
             if cos_values:
@@ -384,6 +383,8 @@ class BurstDetect(object):
                     'timestamp': self.timestamp,
                     'burst_words': burst_words,
                     # 'sentiment': parent['sentiment'] + cur_event['sentiment'],
+                    'burst_tweets_count': parent['burst_tweets_count'] + cur_event['burst_tweets_count'],
+                    'sum_tweets_count': parent['sum_tweets_count'] + cur_event['sum_tweets_count'],
                     'burst_events_objectid': parent['burst_events_objectid'] + [burst_id]
                 })
                 flag = True
@@ -392,6 +393,8 @@ class BurstDetect(object):
                 'timestamp': self.timestamp,
                 'burst_words': cur_words,
                 # 'sentiment': cur_event['sentiment'],
+                'burst_tweets_count': cur_event['burst_tweets_count'],
+                'sum_tweets_count': cur_event['sum_tweets_count'],
                 'burst_events_objectid': [burst_id]
             })
             parent_id = parent.inserted_id
@@ -401,7 +404,7 @@ class BurstDetect(object):
         })
 
     def test(self):
-        day = range(20, 22)
+        day = range(18, 22)
         hour = range(0, 24)
         minute = range(0, 60, 10)
         for d in day:

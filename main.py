@@ -17,6 +17,13 @@ define("port", default=8888, help="run on the give port", type=int)
 
 inter = Interface()
 
+def simulate_time(ntime):
+    ntime = datetime.fromtimestamp(int(ntime)).strftime('%Y-%m-%d %H:%M')
+    ntime = ntime.split('-')
+    ntime[0] = '2015'
+    ntime[1] = '06'
+    return '-'.join(ntime)
+
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("Hello world!")
@@ -28,8 +35,10 @@ class GetDetectionEventByIDHandler(tornado.web.RequestHandler):
 
 class GetDetectionEventsByTimeHandler(tornado.web.RequestHandler):
     def get(self, n_time):
-        nn_time = datetime.fromtimestamp(int(n_time)).strftime('%Y-%m-%d %H:%M')
-        pre_time = datetime.fromtimestamp(int(n_time) - 600).strftime('%Y-%m-%d %H:%M')
+        # nn_time = datetime.fromtimestamp(int(n_time)).strftime('%Y-%m-%d %H:%M')
+        # pre_time = datetime.fromtimestamp(int(n_time) - 600).strftime('%Y-%m-%d %H:%M')
+        nn_time = simulate_time(n_time)
+        pre_time = simulate_time(int(n_time) - 600)
         events = inter.get_detection_events_by_time(pre_time, nn_time)
         self.write(events)
 
@@ -40,8 +49,10 @@ class GetTrackingEventByIDHandler(tornado.web.RequestHandler):
 
 class GetTrackingEventsByTimeHandler(tornado.web.RequestHandler):
     def get(self, s_time, e_time):
-        s_time = datetime.fromtimestamp(int(s_time)).strftime('%Y-%m-%d %H:%M')
-        e_time = datetime.fromtimestamp(int(e_time)).strftime('%Y-%m-%d %H:%M')
+        # s_time = datetime.fromtimestamp(int(s_time)).strftime('%Y-%m-%d %H:%M')
+        # e_time = datetime.fromtimestamp(int(e_time)).strftime('%Y-%m-%d %H:%M')
+        s_time = simulate_time(s_time)
+        e_time = simulate_time(e_time)
         events = inter.get_tracking_events_by_time(s_time, e_time)
         self.write(events)
 
