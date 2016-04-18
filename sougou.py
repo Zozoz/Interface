@@ -227,8 +227,8 @@ class BurstDetect(object):
             self.id2word[i] = self.burst_word[i]
 
         self.word2vec()
-        self.cluster_singlepass(self.vec)
-        self.get_burst_event(self.clu)
+        if self.cluster_singlepass(self.vec):
+            self.get_burst_event(self.clu)
 
     def word2vec(self):
         length = len(self.burst_word)
@@ -254,12 +254,16 @@ class BurstDetect(object):
         centroid = []
         cluster = []
         cnt = 0
-        while True:
-            if self.cnt[cnt] > 3:
-                centroid.append([cnt])
-                cluster.append(input_vec[cnt])
-                break
-            cnt += 1
+        try:
+            while True:
+                if self.cnt[cnt] > 3:
+                    centroid.append([cnt])
+                    cluster.append(input_vec[cnt])
+                    break
+                cnt += 1
+        except:
+            print 'Warning: the number of word in burst_word is less than 4.'
+            return False
         for i in xrange(cnt + 1, len(input_vec)):
             if self.cnt[i] < 4:
                 continue
@@ -284,6 +288,7 @@ class BurstDetect(object):
         print ' '.join(self.burst_word)
         print 'the number of doc is ', len(input_vec)
         print 'centroid number is ', len(centroid)
+        return True
 
     def get_burst_event(self, centroid):
         centroid.sort(key=lambda d: len(d), reverse=True)
@@ -412,6 +417,7 @@ class BurstDetect(object):
                 for m in minute:
                     times = datetime.datetime(2015, 6, d, h, m)
                     self.process(times)
+        self.R.lpop('pre_gap')
 
 
 if __name__ == '__main__':
