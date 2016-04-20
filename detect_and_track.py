@@ -19,6 +19,7 @@ class BurstDetect(object):
         self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo_test', port=3306)
         self.cur = self.conn.cursor()
         self.R = redis.Redis(host='localhost', port=6379, db=1)
+        self.R.flushdb()
         mongodb = MongoClient('localhost', 27017)
         self.db = mongodb['weibo']
         self.col = self.db['burst_events']
@@ -354,7 +355,7 @@ class BurstDetect(object):
         })
 
     def test(self):
-        day = range(17, 22)
+        day = range(20, 22)
         hour = range(0, 24)
         minute = range(0, 60, 10)
         for d in day:

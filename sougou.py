@@ -37,10 +37,11 @@ class BurstDetect(object):
     '''
 
     def __init__(self):
-        self.threshold = 0.02
+        self.threshold = 0.03
         self.conn = MySQLdb.connect(host='202.119.84.47', user='root', passwd='qwert123456', db='weibo_test', port=3306)
         self.cur = self.conn.cursor()
         self.R = redis.Redis(host='localhost', port=6379, db=1)
+        self.R.flushdb()
         mongodb = MongoClient('localhost', 27017)
         self.db = mongodb['weibo']
         self.col = self.db['burst_events']
@@ -167,12 +168,15 @@ class BurstDetect(object):
         # save tf to redis
         try:
             pre_gap_tf = eval(self.R.lpop('pre_gap'))
+            W = int(self.R.lpop('W'))
         except:
             print 'here'
             pre_gap_tf= dict()
+            W = 0
         # self.R.lpush(e_time, tf)
 
-        W = len(pre_gap_tf.keys())
+        W += int(sum(tf.values()))
+        self.R.lpush('W', W)
         wf = dict()
         for k, v in tf.items():
             wf[k] = v
@@ -229,6 +233,7 @@ class BurstDetect(object):
         self.word2vec()
         if self.cluster_singlepass(self.vec):
             self.get_burst_event(self.clu)
+            pass
 
     def word2vec(self):
         length = len(self.burst_word)
@@ -409,7 +414,7 @@ class BurstDetect(object):
         })
 
     def test(self):
-        day = range(18, 22)
+        day = range(20, 22)
         hour = range(0, 24)
         minute = range(0, 60, 10)
         for d in day:
